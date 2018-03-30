@@ -51,8 +51,16 @@ def getNearestNeighbors(instance, dataset, K):
 
     return np.sort(neighbours, order='distance')[0:K]
 
+def getPredictedClass(neighbours, dataset_y):
+    classesVotes = []
+    for i in range(len(neighbours)):
+        (i,d) = neighbours[i]
+        classesVotes.append(dataset_y[i])
     
-    ### auxiliary methods end
+    return pd.value_counts(classesVotes).keys()[0]
+    
+    
+### auxiliary methods end
 
   
 for train_indexes, test_indexes in skf.split(X_kc2,y_kc2):
