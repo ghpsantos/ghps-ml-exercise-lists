@@ -12,10 +12,12 @@ import os
 
 import pandas as pd
 import math
+import operator
 import numpy as np
-from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
 from sklearn import preprocessing
+from sklearn.metrics import accuracy_score
+
 
 datatrieve_data = pd.read_csv("dataset/datatrieve.csv",header=None)
 kc2_data = pd.read_csv("dataset/kc2.csv",header=None)
@@ -51,13 +53,25 @@ def getNearestNeighbors(instance, dataset, K):
 
     return np.sort(neighbours, order='distance')[0:K]
 
-def getPredictedClass(neighbours, dataset_y):
+def getFrequencyPredictedClass(neighbours, dataset_y):
     classesVotes = []
     for i in range(len(neighbours)):
         (i,d) = neighbours[i]
         classesVotes.append(dataset_y[i])
     
     return pd.value_counts(classesVotes).keys()[0]
+
+def getWeightedPredictedClass(neighbours, dataset_y):
+    weightedVotes = {}
+    for i in range(len(neighbours)):
+        (i,d) = neighbours[i]
+        neighbor_class = dataset_y[i] 
+        if neighbor_class in weightedVotes:
+            weightedVotes[neighbor_class] += d
+        else:
+            weightedVotes[neighbor_class] = d
+        
+    return sorted(weightedVotes.items(), key=operator.itemgetter(1), reverse=True)[0][0]
     
     
 ### auxiliary methods end
