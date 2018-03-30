@@ -11,6 +11,8 @@ import os
 #test import
 
 import pandas as pd
+import math
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
 from sklearn import preprocessing
@@ -33,6 +35,26 @@ skf = StratifiedKFold(n_splits=5)
 #     print("TRAIN:", X_datatrieve[train_indexes], "TEST:", y_datatrieve[test_indexes], "\n\n\n -----------------")
 #     os.system("pause")
 
+
+### auxiliary methods
+def euclidianDistance(v1, v2):
+    return math.sqrt(sum(pow((v1 - v2),2)))
+    
+def getNearestNeighbors(instance, dataset, K):
+    neighbours = []
+    for i in range(len(dataset)):
+        neighbours.append((i, euclidianDistance(instance, dataset[i,:])))
+#        print(i, "\n")
+#        print(euclidianDistance(instance, dataset[i,:]))
+    neighbours = np.array(neighbours, dtype=[('index',int),('distance',float)])   
+    
+
+    return np.sort(neighbours, order='distance')[0:K]
+
+    
+    ### auxiliary methods end
+
+  
 for train_indexes, test_indexes in skf.split(X_kc2,y_kc2):
      print("TRAIN:", X_kc2[train_indexes], "TEST:", y_kc2[test_indexes], "\n\n\n -----------------")
      os.system("pause")
