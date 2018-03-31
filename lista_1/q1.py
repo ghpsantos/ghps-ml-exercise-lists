@@ -67,10 +67,12 @@ def getWeightedPredictedClass(neighbours, dataset_y):
         (i,d) = neighbours[i]
         neighbor_class = dataset_y[i] 
         if neighbor_class in weightedVotes:
-            weightedVotes[neighbor_class] += d
+            if d != 0:
+                weightedVotes[neighbor_class] += 1/(math.pow(d,2))
         else:
-            weightedVotes[neighbor_class] = d
-        
+             if d != 0:
+                 weightedVotes[neighbor_class] = 1/(math.pow(d,2))
+                 
     return sorted(weightedVotes.items(), key=operator.itemgetter(1), reverse=True)[0][0]
     
     
