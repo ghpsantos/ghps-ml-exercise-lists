@@ -19,8 +19,8 @@ from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
 
 
-datatrieve_data = pd.read_csv("dataset/datatrieve.csv",header=None)
-kc2_data = pd.read_csv("dataset/kc2.csv",header=None)
+datatrieve_data = pd.read_csv("dataset/q1/datatrieve.csv",header=None)
+kc2_data = pd.read_csv("dataset/q1/kc2.csv",header=None)
 
 #datatrieve dataset X and y
 X_datatrieve = preprocessing.scale(datatrieve_data.iloc[:,:-1].values)
@@ -30,13 +30,7 @@ y_datatrieve = datatrieve_data.iloc[:,8].values
 X_kc2 = preprocessing.scale(kc2_data.iloc[:,:-1].values)
 y_kc2 = kc2_data.iloc[:,21].values
 
-
 skf = StratifiedKFold(n_splits=5)
-
-#for train_indexes, test_indexes in skf.split(X_datatrieve,y_datatrieve):
-#     print("TRAIN:", X_datatrieve[train_indexes], "TEST:", y_datatrieve[test_indexes], "\n\n\n -----------------")
-#     os.system("pause")
-
 
 ### auxiliary methods
 def euclidianDistance(v1, v2):
@@ -46,8 +40,7 @@ def getNearestNeighbors(instance, dataset, K):
     neighbours = []
     for i in range(len(dataset)):
         neighbours.append((i, euclidianDistance(instance, dataset[i,:])))
-#        print(i, "\n")
-#        print(euclidianDistance(instance, dataset[i,:]))
+        
     neighbours = np.array(neighbours, dtype=[('index',int),('distance',float)])   
     
 
