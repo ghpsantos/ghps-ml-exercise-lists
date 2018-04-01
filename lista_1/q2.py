@@ -17,13 +17,25 @@ import numpy as np
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score
 
-
+#certo
 baloons_data = pd.read_csv("dataset/q2/baloons-adult-strech.csv",header=None)
 #kc2_data = pd.read_csv("dataset/kc2.csv",header=None)
 
 #datatrieve dataset X and y
 X_baloons = baloons_data.iloc[:,:-1].values
 y_baloons = baloons_data.iloc[:,4].values
+
+
+"""
+baloons_data = pd.read_csv("dataset/q2/balance-scale.csv",header=None)
+#kc2_data = pd.read_csv("dataset/kc2.csv",header=None)
+
+#datatrieve dataset X and y
+X_baloons = baloons_data.iloc[:,1:5].values
+y_baloons = baloons_data.iloc[:,0].values
+
+"""
+#testando
 
 #kc2 dataset X and y
 #X_kc2 = preprocessing.scale(kc2_data.iloc[:,:-1].values)
