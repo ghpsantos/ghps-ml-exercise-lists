@@ -90,44 +90,57 @@ def getFrequencyPredictedClass(neighbours, dataset_y):
 #                 
 #    return sorted(weightedVotes.items(), key=operator.itemgetter(1), reverse=True)[0][0]
 #    
-
+def euclidianDistance(v1, v2):
+    return math.sqrt(pow((v1 - v2),2))
+    
 def HVDM(a,b, matrix, y_train_set):
     distanceHVDM = 0
     for i in range(len(a)):
-#        se a[i] e b[i] são missing 0, se apenas um é missing, 0, se categorico vdm, senão euclidiana
-        distanceHVDM += vdm(i,a[i],b[i], matrix, y_train_set)       
-        os.system("pause")
+        if isMissing(a[i]) and isMissing(a[2]):
+            distanceHVDM += 0
+        elif isMissing(a[i]) or isMissing(a[2]):
+            distanceHVDM += 1    
+        elif isNumber(a[i]):
+            distanceHVDM += euclidianDistance(a[i],b[i])
+        else:
+#            print(a[i])
+#            print(b[i])
+            distanceHVDM += math.pow(vdm(i,a[i],b[i], matrix, y_train_set),2)   
+#            print(distanceHVDM)
+#            os.system("pause")
 
     return math.sqrt(distanceHVDM)
     
 def vdm(i,ai,bi, matrix,y_train_set):
     classes = np.unique(y_train_set)
     distance = 0
-#    print(ai)
-#    print(bi)
+
     for c in classes:
         distance += math.pow(( matrix[''.join([str(i),str(ai),str(c)])] - matrix[''.join([str(i),str(bi),str(c)])]),2)
-#        print( matrix[''.join([str(i),str(ai),str(c)])])
-#        print( matrix[''.join([str(i),str(bi),str(c)])])
-#        print(distance)
-#        os.system("pause")
-    
+
     return distance  
 
+
+def isNumber(number):
+    
+    return str(number).lstrip('-').replace('.','',1).isnumeric()
+ 
+def isMissing(data):
+    return data == '?'
     
 def buildProbabilityMatrix(X_train_set, y_train_set):
     classes = np.unique(y_train_set)
     n_attributes = len(X_train_set[0,:])
     
     matrix = {}
-    print(X_train_set[0,:])
+#    print(X_train_set[0,:])
     for attr_index in range(n_attributes):
         currentColumn = X_train_set[:,attr_index]
 
 #          se o atributo da coluna X é numerico, pule(gambiarra no replace)
-        if str(X_train_set[0,:][attr_index]).lstrip('-').replace('.','',1).isnumeric():
+        if isNumber(str(X_train_set[0,:][attr_index])):
 #            print(attr_index)
-            print(X_train_set[0,:][attr_index])
+#            print(X_train_set[0,:][attr_index])
             continue
 
         for word in np.unique(currentColumn):
@@ -157,12 +170,14 @@ def countElementsWithClass(element, c, array, y):
 for train_indexes, test_indexes in skf.split(X_crx,y_crx):
     matrix = buildProbabilityMatrix(X_crx[train_indexes], y_crx[train_indexes])
     print(matrix)
-#    print(VDM(X_baloons[train_indexes][0,:], X_baloons[train_indexes][5,:],matrix, y_baloons[train_indexes]))
+#    print(HVDM(X_crx[train_indexes][0,:], X_crx[train_indexes][5,:],matrix, y_crx[train_indexes]))
 #     print("TRAIN:", X_baloons[train_indexes], "TEST:", y_baloons[test_indexes], "\n\n\n -----------------")
 #    print(getNearestNeighbors(X_baloons[test_indexes][0,:], X_baloons[train_indexes], 5, matrix, y_baloons[train_indexes]))
     
-#    neighbours = getNearestNeighbors(X_crx[test_indexes][2,:], X_crx[train_indexes], 5, matrix, y_crx[train_indexes])    
-#    print(getFrequencyPredictedClass(neighbours, y_crx[train_indexes]))
+    neighbours = getNearestNeighbors(X_crx[test_indexes][0,:], X_crx[train_indexes], 5, matrix, y_crx[train_indexes])    
+#    print(neighbours)
+    print(y_crx[test_indexes][0])
+    print(getFrequencyPredictedClass(neighbours, y_crx[train_indexes]))
     os.system("pause")
      
 #for train, test in kf.split(dataset_datatrieve):
