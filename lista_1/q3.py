@@ -79,12 +79,13 @@ def getFrequencyPredictedClass(neighbours, dataset_y):
 #    
 
 def HVDM(a,b, matrix, y_train_set):
-    distanceVDM = 0
+    distanceHVDM = 0
     for i in range(len(a)):
-        distanceVDM += vdm(i,a[i],b[i], matrix, y_train_set)       
+#        se a[i] e b[i] são missing 0, se apenas um é missing, 0, se categorico vdm, senão euclidiana
+        distanceHVDM += vdm(i,a[i],b[i], matrix, y_train_set)       
         os.system("pause")
 
-    return math.sqrt(distanceVDM)
+    return math.sqrt(distanceHVDM)
     
 def vdm(i,ai,bi, matrix,y_train_set):
     classes = np.unique(y_train_set)
