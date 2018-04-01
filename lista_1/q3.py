@@ -15,6 +15,8 @@ import operator
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score
+from sklearn import preprocessing
+from sklearn.preprocessing import Imputer
 
 ##certo
 #baloons_data = pd.read_csv("dataset/q2/baloons-adult-strech.csv",header=None)
@@ -24,13 +26,23 @@ from sklearn.metrics import accuracy_score
 #X_baloons = baloons_data.iloc[:,:-1].values
 #y_baloons = baloons_data.iloc[:,4].values
 
-
-
+from sklearn.preprocessing import MinMaxScaler
 crx_data = pd.read_csv("dataset/q3/crx.csv",header=None)
 #kc2_data = pd.read_csv("dataset/kc2.csv",header=None)
 
 #datatrieve dataset X and y
-X_crx = crx_data.iloc[:,:-1].values
+X_crx = crx_data.iloc[:,:-1]
+
+#X_crx[[1,2, 7,10, 13,14]] = X_crx[[1,2, 7,10, 13,14]].replace('?',np.NaN)
+#replacing missing data with NaN for normalize
+imputer = Imputer(missing_values='NaN', strategy = 'mean', axis=0)
+X_crx[[1,2, 7,10, 13,14]] = imputer.fit_transform(X_crx[[1,2, 7,10, 13,14]].replace('?',np.NaN))
+
+#normalizing numerical columns
+scaler = MinMaxScaler()
+X_crx[[1,2, 7,10, 13,14]] = preprocessing.scale(X_crx[[1,2, 7,10, 13,14]])
+
+X_crx = X_crx.values
 y_crx = crx_data.iloc[:,15].values
 
 
@@ -46,6 +58,7 @@ skf = StratifiedKFold(n_splits=5)
 #def euclidianDistance(v1, v2):
 #    return math.sqrt(sum(pow((v1 - v2),2)))
 #    
+
 def getNearestNeighbors(instance, X_train_set, K, matrix, y_train_set):
     neighbours = []
     for i in range(len(X_train_set)):
@@ -112,7 +125,7 @@ def buildProbabilityMatrix(X_train_set, y_train_set):
         currentColumn = X_train_set[:,attr_index]
 
 #          se o atributo da coluna X é numerico, pule(gambiarra no replace)
-        if str(X_train_set[0,:][attr_index]).replace('.','',1).isnumeric():
+        if str(X_train_set[0,:][attr_index]).lstrip('-').replace('.','',1).isnumeric():
 #            print(attr_index)
             print(X_train_set[0,:][attr_index])
             continue
