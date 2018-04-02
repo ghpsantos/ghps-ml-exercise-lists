@@ -87,7 +87,7 @@ def runKNNAndReturnAcurracies(X_train, y_train, X_test,y_test):
         predicted_frequency, predicted_weight = runKNNS(t, X_train, y_train)
         frequency_predictions[index] = predicted_frequency
         weight_predictions[index] = predicted_weight
-
+    
     return [calculateKAcurracyScore(y_test, frequency_predictions),calculateKAcurracyScore(y_test, weight_predictions) ]
 
 
@@ -134,6 +134,7 @@ import matplotlib.pyplot as plt
 def barPlot(axis_x, axis_y, text):
     bar_width = 0.3
     plt.figure(1)
+    plt.xlim([0,1])
     plt.xlabel('K')
     plt.ylabel('precision')
     plt.title(text)
