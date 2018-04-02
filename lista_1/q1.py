@@ -44,7 +44,6 @@ def getNeighbors(instance, dataset):
     neighbours = np.array(neighbours, dtype=[('index',int),('distance',float)])   
     
 
-#    return np.sort(neighbours, order='distance')[0:K]
     return np.sort(neighbours, order='distance')
 
 
@@ -126,9 +125,6 @@ def runKNNS(instance, X_train,y_train):
         k_predict_weight[k] = getWeightedPredictedClass(neighbours[0:k], y_train)
         
     
-#    print(k_predict_frequency)
-#    print(k_predict_weight)
-#    os.system("pause")
     return k_predict_frequency, k_predict_weight
 
 
@@ -149,31 +145,28 @@ def barPlot(axis_x, axis_y, text):
     plt.show()
 
 
- 
-allFrequencies = []
-allWeight = []
-for train_indexes, test_indexes in skf.split(X_kc2,y_kc2):
-     frequency, weight = runKNNAndReturnAcurracies(X_kc2[train_indexes],y_kc2[train_indexes], X_kc2[test_indexes],y_kc2[test_indexes] )
-     
-     allFrequencies.append(frequency)
-     allWeight.append(weight)
-
-     
-
-print(allWeight)
-print(allFrequencies)
-
 def precisionMedia(precision_matrix):
-    print(precision_matrix)
     l = len(precision_matrix);
     return np.array(precision_matrix).sum(axis=0)/l
 
-##print(len(K_values_list))
-#
-#print(len( precisionMedia(allFrequencies)))
-barPlot(K_values_list, precisionMedia(allFrequencies), 'KNN')
-#print(len( precisionMedia(weight)))
-#
-#print(len(weight))
-#print(len(allWeight))
-barPlot(K_values_list, precisionMedia(allWeight), 'KNN com peso')
+
+def runCrossValidationAndPlotResult(X, y, database_name):
+    allFrequencies= []
+    allWeight = []
+
+    for train_indexes, test_indexes in skf.split(X,y):
+         frequency, weight = runKNNAndReturnAcurracies(X[train_indexes],y[train_indexes], X[test_indexes],y[test_indexes] )
+         
+         allFrequencies.append(frequency)
+         allWeight.append(weight)
+
+    barPlot(K_values_list, precisionMedia(allFrequencies), 'KNN' +' - ' +database_name )
+    barPlot(K_values_list, precisionMedia(allWeight), 'KNN com peso' + ' - ' +  database_name)
+    
+runCrossValidationAndPlotResult(X_kc2, y_kc2, 'KC2')
+runCrossValidationAndPlotResult(X_datatrieve,y_datatrieve, 'DATATRIEVE')
+
+
+
+
+
