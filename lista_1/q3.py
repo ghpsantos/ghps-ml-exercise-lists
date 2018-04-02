@@ -18,15 +18,19 @@ from sklearn.metrics import accuracy_score
 from sklearn import preprocessing
 from sklearn.preprocessing import Imputer
 
-##certo
-#baloons_data = pd.read_csv("dataset/q2/baloons-adult-strech.csv",header=None)
-##kc2_data = pd.read_csv("dataset/kc2.csv",header=None)
-#
-##datatrieve dataset X and y
-#X_baloons = baloons_data.iloc[:,:-1].values
-#y_baloons = baloons_data.iloc[:,4].values
 
-from sklearn.preprocessing import MinMaxScaler
+#####german
+german_data = pd.read_csv("dataset/q3/german.csv",header=None)
+
+#datatrieve dataset X and y
+X_german = german_data.iloc[:,:-1]
+y_german = german_data.iloc[:,20].values
+
+# normalizando dados numéricos
+X_german[[1,4,7,10,12,15,17]] = preprocessing.scale(X_german[[1,4,7,10,12,15,17]])
+X_german = X_german.values
+
+################## crx dataset preprocessing
 crx_data = pd.read_csv("dataset/q3/crx.csv",header=None)
 #kc2_data = pd.read_csv("dataset/kc2.csv",header=None)
 
@@ -39,34 +43,25 @@ imputer = Imputer(missing_values='NaN', strategy = 'mean', axis=0)
 X_crx[[1,2, 7,10, 13,14]] = imputer.fit_transform(X_crx[[1,2, 7,10, 13,14]].replace('?',np.NaN))
 
 #normalizing numerical columns
-scaler = MinMaxScaler()
 X_crx[[1,2, 7,10, 13,14]] = preprocessing.scale(X_crx[[1,2, 7,10, 13,14]])
 
 X_crx = X_crx.values
 y_crx = crx_data.iloc[:,15].values
 
+#########
 
-#testando
-
-#kc2 dataset X and y
-#X_kc2 = preprocessing.scale(kc2_data.iloc[:,:-1].values)
-#y_kc2 = kc2_data.iloc[:,21].values
 
 skf = StratifiedKFold(n_splits=5)
 
-## auxiliary methods
-#def euclidianDistance(v1, v2):
-#    return math.sqrt(sum(pow((v1 - v2),2)))
-#    
 
-def getNearestNeighbors(instance, X_train_set, K, matrix, y_train_set):
+def getNeighbors(instance, X_train_set, matrix, y_train_set):
     neighbours = []
     for i in range(len(X_train_set)):
         neighbours.append((i, HVDM(instance, X_train_set[i,:],matrix,y_train_set)))
         
     neighbours = np.array(neighbours, dtype=[('index',int),('distance',float)])   
     
-    return np.sort(neighbours, order='distance')[0:K]
+    return np.sort(neighbours, order='distance')
 
 def getFrequencyPredictedClass(neighbours, dataset_y):
     classesVotes = []
@@ -76,20 +71,79 @@ def getFrequencyPredictedClass(neighbours, dataset_y):
     
     return pd.value_counts(classesVotes).keys()[0]
 
-#def getWeightedPredictedClass(neighbours, dataset_y):
-#    weightedVotes = {}
-#    for i in range(len(neighbours)):
-#        (i,d) = neighbours[i]
-#        neighbor_class = dataset_y[i] 
-#        if neighbor_class in weightedVotes:
-#            if d != 0:
-#                weightedVotes[neighbor_class] += 1/(math.pow(d,2))
-#        else:
-#             if d != 0:
-#                 weightedVotes[neighbor_class] = 1/(math.pow(d,2))
-#                 
-#    return sorted(weightedVotes.items(), key=operator.itemgetter(1), reverse=True)[0][0]
-#    
+def getWeightedPredictedClass(neighbours, dataset_y):
+    weightedVotes = {}
+    for i in range(len(neighbours)):
+        (i,d) = neighbours[i]
+        neighbor_class = dataset_y[i] 
+        if neighbor_class in weightedVotes:
+            if d != 0:
+                weightedVotes[neighbor_class] += 1/(math.pow(d,2))
+        else:
+             if d != 0:
+                 weightedVotes[neighbor_class] = 1/(math.pow(d,2))
+             else: 
+                 weightedVotes[neighbor_class] = 0  
+
+    return sorted(weightedVotes.items(), key=operator.itemgetter(1), reverse=True)[0][0]
+
+K_values_list = [1,2,3,5,7,9,11,13,15]
+
+
+#### knns    
+def calculateAcurracy(y_true, y_pred):
+    return accuracy_score(y_true, np.array(y_pred))
+    
+def calculateKAcurracyScore(y_true, predictions):
+    
+    y1, y2, y3, y5, y7, y9, y11, y13, y15 = [],[],[],[],[],[],[],[],[]
+    #populando os arrays predizidos
+    for index, t in enumerate(predictions):
+        #frequency
+        
+        y1.append (predictions[index][1])
+        y2.append (predictions[index][2])
+        y3.append (predictions[index][3])
+        y5.append (predictions[index][5])
+        y7.append (predictions[index][7])
+        y9.append (predictions[index][9])
+        y11.append (predictions[index][11])
+        y13.append (predictions[index][13])
+        y15.append (predictions[index][15])
+        
+        
+    return [calculateAcurracy(y_true, y1),calculateAcurracy(y_true, y2), calculateAcurracy(y_true, y3), calculateAcurracy(y_true, y5), calculateAcurracy(y_true, y7), calculateAcurracy(y_true, y9), calculateAcurracy(y_true, y11), calculateAcurracy(y_true, y13),calculateAcurracy(y_true, y15)] 
+ 
+def runKNNS(instance, X_train, matrix ,y_train):
+    neighbours = getNeighbors(instance, X_train, matrix ,y_train)
+    
+    k_predict_frequency =  {}
+    k_predict_weight =  {}
+    
+    for k in K_values_list:
+        k_predict_frequency[k] = getFrequencyPredictedClass(neighbours[0:k], y_train)
+        k_predict_weight[k] = getWeightedPredictedClass(neighbours[0:k], y_train)
+        
+    
+    return k_predict_frequency, k_predict_weight
+
+def runKNNAndReturnAcurracies(X_train, y_train, X_test,y_test, matrix):
+    frequency_predictions =  {}
+    weight_predictions =  {}
+
+#    para cada cada no conjunto de testes...
+    for index, t in enumerate (X_test):
+        predicted_frequency, predicted_weight = runKNNS(t, X_train, matrix, y_train)
+       
+        frequency_predictions[index] = predicted_frequency
+        weight_predictions[index] = predicted_weight
+        
+
+    return [calculateKAcurracyScore(y_test, frequency_predictions),calculateKAcurracyScore(y_test, weight_predictions) ]
+
+            
+##### HVDM            
+    
 def euclidianDistance(v1, v2):
     return math.sqrt(pow((v1 - v2),2))
     
@@ -100,14 +154,12 @@ def HVDM(a,b, matrix, y_train_set):
             distanceHVDM += 0
         elif isMissing(a[i]) or isMissing(a[2]):
             distanceHVDM += 1    
-        elif isNumber(a[i]):
+        elif isNumber(a[i]) and isNumber(b[i]):
             distanceHVDM += euclidianDistance(a[i],b[i])
         else:
-#            print(a[i])
-#            print(b[i])
+
             distanceHVDM += math.pow(vdm(i,a[i],b[i], matrix, y_train_set),2)   
-#            print(distanceHVDM)
-#            os.system("pause")
+
 
     return math.sqrt(distanceHVDM)
     
@@ -116,8 +168,15 @@ def vdm(i,ai,bi, matrix,y_train_set):
     distance = 0
 
     for c in classes:
-        distance += math.pow(( matrix[''.join([str(i),str(ai),str(c)])] - matrix[''.join([str(i),str(bi),str(c)])]),2)
-
+        aKey = ''.join([str(i),str(ai),str(c)])
+        bKey = ''.join([str(i),str(bi),str(c)])
+        #se não existe na matrix é pq a probabilidade é 0
+          
+        if(aKey in matrix and bKey in matrix): 
+            distance += math.pow(( matrix[aKey] - matrix[bKey]),2)
+        else:
+            print('não tem')
+            
     return distance  
 
 
@@ -131,16 +190,14 @@ def isMissing(data):
 def buildProbabilityMatrix(X_train_set, y_train_set):
     classes = np.unique(y_train_set)
     n_attributes = len(X_train_set[0,:])
-    
     matrix = {}
-#    print(X_train_set[0,:])
+    
     for attr_index in range(n_attributes):
         currentColumn = X_train_set[:,attr_index]
 
-#          se o atributo da coluna X é numerico, pule(gambiarra no replace)
+
         if isNumber(str(X_train_set[0,:][attr_index])):
-#            print(attr_index)
-#            print(X_train_set[0,:][attr_index])
+
             continue
 
         for word in np.unique(currentColumn):
@@ -165,21 +222,52 @@ def countElementsWithClass(element, c, array, y):
             count +=1  
         
     return count
+##############################
+
+
+####plot
+import matplotlib.pyplot as plt
+
+
+def barPlot(axis_x, axis_y, text):
+    bar_width = 0.3
+    plt.figure(1)
+    plt.xlabel('K')
+    plt.ylabel('precision')
+    plt.title(text)
+    plt.grid()
+    plt.xlim(0,17)
+    plt.xticks(np.arange(min(axis_x), max(axis_x)+1, 1.0))
     
-### auxiliary methods end
-for train_indexes, test_indexes in skf.split(X_crx,y_crx):
-    matrix = buildProbabilityMatrix(X_crx[train_indexes], y_crx[train_indexes])
-    print(matrix)
-#    print(HVDM(X_crx[train_indexes][0,:], X_crx[train_indexes][5,:],matrix, y_crx[train_indexes]))
-#     print("TRAIN:", X_baloons[train_indexes], "TEST:", y_baloons[test_indexes], "\n\n\n -----------------")
-#    print(getNearestNeighbors(X_baloons[test_indexes][0,:], X_baloons[train_indexes], 5, matrix, y_baloons[train_indexes]))
+    plt.bar(np.asarray(axis_x),axis_y ,bar_width,color='r',label='Accuracy')
+    plt.show()
+####
     
-    neighbours = getNearestNeighbors(X_crx[test_indexes][0,:], X_crx[train_indexes], 5, matrix, y_crx[train_indexes])    
-#    print(neighbours)
-    print(y_crx[test_indexes][0])
-    print(getFrequencyPredictedClass(neighbours, y_crx[train_indexes]))
-    os.system("pause")
-     
-#for train, test in kf.split(dataset_datatrieve):
-#    print("%s %s" % (train, test))
-#kf.split(dataset_datatrieve)
+
+def precisionMedia(precision_matrix):
+
+    l = len(precision_matrix);
+    return np.array(precision_matrix).sum(axis=0)/l  
+
+def runCrossValidationAndPlotResult(X, y, database_name):
+    allFrequencies= []
+    allWeight = []
+
+    for train_indexes, test_indexes in skf.split(X,y):
+        
+        matrix = buildProbabilityMatrix(X[train_indexes], y[train_indexes])
+#        print(matrix)
+        frequency, weight = runKNNAndReturnAcurracies(X[train_indexes],y[train_indexes], X[test_indexes],y[test_indexes],matrix )
+         
+        print('TERMINOU A ITERAÇÃO')
+        print(matrix)
+        allFrequencies.append(frequency)
+        allWeight.append(weight)
+        
+    barPlot(K_values_list, precisionMedia(allFrequencies), 'KNN' +' - ' +database_name )
+    barPlot(K_values_list, precisionMedia(allWeight), 'KNN com peso' + ' - ' +  database_name)
+        
+runCrossValidationAndPlotResult(X_german, y_german, 'GERMAN')         
+#runCrossValidationAndPlotResult(X_post_operative, y_post_operative, 'POST OPERATIVE')
+runCrossValidationAndPlotResult(X_crx, y_crx, 'CRX')
+ 

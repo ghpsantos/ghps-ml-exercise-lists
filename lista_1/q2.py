@@ -34,18 +34,11 @@ X_balance = balance_data.iloc[:,1:5].values
 y_balance= balance_data.iloc[:,0].values
 
 
-#testando
-
-#kc2 dataset X and y
-#X_kc2 = preprocessing.scale(kc2_data.iloc[:,:-1].values)
-#y_kc2 = kc2_data.iloc[:,21].values
-
 skf = StratifiedKFold(n_splits=5)
 
-## auxiliary methods
-#def euclidianDistance(v1, v2):
-#    return math.sqrt(sum(pow((v1 - v2),2)))
-#    
+
+######
+
 def getNeighbors(instance, X_train_set, matrix, y_train_set):
     neighbours = []
     for i in range(len(X_train_set)):
