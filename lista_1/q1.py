@@ -85,47 +85,11 @@ def runKNNAndReturnAcurracies(X_train, y_train, X_test,y_test):
 
 #    para cada cada no conjunto de testes...
     for index, t in enumerate (X_test):
-#        print(t)
-#        print(index)
         predicted_frequency, predicted_weight = runKNNS(t, X_train, y_train)
         frequency_predictions[index] = predicted_frequency
         weight_predictions[index] = predicted_weight
-#        print(predicted_frequency)
-#        print(predicted_weight)
-#        
-        
-        
-#    np.sort(neighbours, order='distance')[0:K]
-#    print(frequency_predictions)
-#    print(weight_predictions)
-#    print(y_test)
-#    print(len(y_test))
-#    os.system("pause")
-    
-    
-    #construindo array de valores retornado por cada K
-#    y1f, y2f, y3f, y4f, y5f, y7f, y9f, y11f, y13f, y15f = [],[],[],[],[],[],[],[],[],[]
-#    #populando os arrays predizidos
-#    for index, t in enumerate(X_test):
-#        #frequency
-#        
-#        y1f.append (frequency_predictions[index][1])
-#        y2f.append (frequency_predictions[index][2])
-#        y3f.append (frequency_predictions[index][3])
-#        y4f.append (frequency_predictions[index][4])
-#        y5f.append (frequency_predictions[index][5])
-#        y7f.append (frequency_predictions[index][7])
-#        y9f.append (frequency_predictions[index][9])
-#        y11f.append (frequency_predictions[index][11])
-#        y13f.append (frequency_predictions[index][13])
-#        y15f.append (frequency_predictions[index][15])
-    
-    
-    print(calculateKAcurracyScore(y_test, frequency_predictions))
-    print(calculateKAcurracyScore(y_test, weight_predictions))
 
-    os.system("pause")
-    return []
+    return [calculateKAcurracyScore(y_test, frequency_predictions),calculateKAcurracyScore(y_test, weight_predictions) ]
 
 
 def calculateKAcurracyScore(y_true, predictions):
@@ -168,15 +132,48 @@ def runKNNS(instance, X_train,y_train):
     return k_predict_frequency, k_predict_weight
 
 
+import matplotlib.pyplot as plt
 
-  
+
+def barPlot(axis_x, axis_y, text):
+    bar_width = 0.3
+    plt.figure(1)
+    plt.xlabel('K')
+    plt.ylabel('precision')
+    plt.title(text)
+    plt.grid()
+    plt.xlim(0,17)
+    plt.xticks(np.arange(min(axis_x), max(axis_x)+1, 1.0))
+    
+    plt.bar(np.asarray(axis_x),axis_y ,bar_width,color='r',label='Accuracy')
+    plt.show()
+
+
+ 
+allFrequencies = []
+allWeight = []
 for train_indexes, test_indexes in skf.split(X_kc2,y_kc2):
-#     print("TRAIN:", X_kc2[train_indexes], "TEST:", y_kc2[test_indexes], "\n\n\n -----------------")
-     rrrr(X_kc2[train_indexes],y_kc2[train_indexes], X_kc2[test_indexes],y_kc2[test_indexes], )
+     frequency, weight = runKNNAndReturnAcurracies(X_kc2[train_indexes],y_kc2[train_indexes], X_kc2[test_indexes],y_kc2[test_indexes] )
      
-
-     os.system("pause")
-     
+     allFrequencies.append(frequency)
+     allWeight.append(weight)
 
      
-     
+
+print(allWeight)
+print(allFrequencies)
+
+def precisionMedia(precision_matrix):
+    print(precision_matrix)
+    l = len(precision_matrix);
+    return np.array(precision_matrix).sum(axis=0)/l
+
+##print(len(K_values_list))
+#
+#print(len( precisionMedia(allFrequencies)))
+barPlot(K_values_list, precisionMedia(allFrequencies), 'KNN')
+#print(len( precisionMedia(weight)))
+#
+#print(len(weight))
+#print(len(allWeight))
+barPlot(K_values_list, precisionMedia(allWeight), 'KNN com peso')
