@@ -54,38 +54,33 @@ def selectRandomProtypes(n_prototypes, X_dataset,y_dataset):
             random_prototypes_X.append(np.asarray(X_dataset[i]).tolist())
             random_prototypes_y.append(np.asarray(y_dataset[i]).tolist())
     
-#    print(random_prototypes_X)
-#    print(random_prototypes_y)
     return [np.array(random_prototypes_X), np.array(random_prototypes_y)] 
 
+#learning rate in function of time
 def learningRateByEpoch(learning_rate, currentEpoch, totalEpochs):
     return learning_rate*(1.0-currentEpoch/float(totalEpochs))
     
 def lvq(X_dataset, y_dataset, n_prototypes, learning_rate, epochs_quantity):
     [selected_prototypes_X, selected_prototypes_y] = selectRandomProtypes(n_prototypes, X_dataset, y_dataset) 
     knnClassifier.fit(selected_prototypes_X,selected_prototypes_y)
-#    
-    print(selected_prototypes_X)
-#    print(selected_prototypes_y)
-    for epoch in range(epochs_quantity):
-        
-        for i,x in enumerate(X_dataset):
-        
-            print(x)
-            print(knnClassifier.predict([x],)[0])
-#            print(y_dataset[i])
-#            nearestPrototype
-#            print(knnClassifier.predict([x])[0] == y_dataset[i])
-#           
-#            if (knnClassifier.predict([x])[0] != y_dataset[i]):
-                
-                
-            os.system("pause")
-            
-            
-        print(learningRateByEpoch(learning_rate, epoch, epochs_quantity))
     
+    for epoch in range(epochs_quantity):
+        for i,x in enumerate(X_dataset):
+            #get nearest neighbor
+            _ , neighs = knnClassifier.kneighbors([x])            
+            index = neighs[0][0]
+            #adjusting prototype
+            if (selected_prototypes_y[index] != y_dataset[i]):
+                selected_prototypes_X[index] += (learningRateByEpoch(learning_rate, epoch, epochs_quantity)*(x - selected_prototypes_X[index]))
+            else:
+                selected_prototypes_X[index] -= (learningRateByEpoch(learning_rate, epoch, epochs_quantity)*(x - selected_prototypes_X[index]))
+
+                
 
     return [selected_prototypes_X, selected_prototypes_y]
     
-lvq(X_datatrieve, y_datatrieve, 5, 0.3, 20)
+[T_X, T_y] = lvq(X_datatrieve, y_datatrieve, 8, 0.3, 20)
+
+
+#print(T_X)
+#print(T_y)
