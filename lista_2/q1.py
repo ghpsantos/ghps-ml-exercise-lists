@@ -48,7 +48,7 @@ def selectRandomProtypes(n_prototypes, X_dataset,y_dataset):
     random_prototypes = []
     classes = np.unique(y_dataset)
     for c in classes:
-        selected_indexes = random.sample(np.asarray(np.where(y_datatrieve==1)).tolist()[0],n_prototypes)
+        selected_indexes = random.sample(np.asarray(np.where(y_datatrieve==c)).tolist()[0],n_prototypes)
         
         for i in selected_indexes:
             random_prototypes.append(np.asarray(X_dataset[i]).tolist())
