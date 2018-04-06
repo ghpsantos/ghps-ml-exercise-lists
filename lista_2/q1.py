@@ -23,6 +23,10 @@ from sklearn.neighbors import KNeighborsClassifier
 datatrieve_data = pd.read_csv("dataset/datatrieve.csv",header=None)
 kc2_data = pd.read_csv("dataset/kc2.csv",header=None)
 
+cm1_data = pd.read_csv("dataset/cm1.csv", header=None)
+X_cm1 = preprocessing.scale(cm1_data.iloc[:,:-1].values)
+y_cm1 = cm1_data.iloc[:,21].values
+
 #datatrieve dataset X and y
 X_datatrieve = preprocessing.scale(datatrieve_data.iloc[:,:-1].values)
 y_datatrieve = datatrieve_data.iloc[:,8].values
@@ -48,6 +52,7 @@ def selectRandomProtypes(n_prototypes, X_dataset,y_dataset):
     random_prototypes_X = []
     random_prototypes_y = []
     classes = np.unique(y_dataset)
+    print(classes)
     for c in classes:
         selected_indexes = random.sample(np.asarray(np.where(y_datatrieve==c)).tolist()[0],n_prototypes)
         for i in selected_indexes:
@@ -152,13 +157,26 @@ def lvq3 (X_dataset, y_dataset, n_prototypes, learning_rate, epochs_quantity, w,
     return [P_X, p_y]
 
     
-[T_X_1, T_y_1] = lvq1(X_datatrieve, y_datatrieve, 8, 0.3, 20)
-[T_X_2, T_y_2] = lvq21(X_datatrieve, y_datatrieve, 8, 0.3, 20, 0.01)
-[T_X_3, T_y_3] = lvq3(X_datatrieve, y_datatrieve, 8, 0.3, 20, 0.01, 0.001)
+#[T_X_1, T_y_1] = lvq1(X_datatrieve, y_datatrieve, 8, 0.3, 20)
+#[T_X_2, T_y_2] = lvq21(X_datatrieve, y_datatrieve, 8, 0.3, 20, 0.01)
+#[T_X_3, T_y_3] = lvq3(X_kc2, y_kc2, 8, 0.3, 20, 0.01, 0.001)
+
+[T_X_3, T_y_3] = lvq3(X_cm1, y_cm1, 8, 0.3, 20, 0.01, 0.001)
 
 #print(T_X_1)
 #print(T_y_1)
 #print(T_X_2)
 #print(T_y_2)
-print(T_X_3)
-print(T_y_3)
+#print(T_X_3)
+#print(T_y_3)
+
+
+#from sklearn.model_selection import StratifiedKFold
+#skf = StratifiedKFold(n_splits=3)
+# 
+#for train_index, test_index in skf.split(X_datatrieve, y_datatrieve):
+#    print(y_datatrieve[train_index])
+#    print(np.where( y_datatrieve == 1))
+#    print(len(y_datatrieve[train_index]))
+#    os.system("pause")
+    
