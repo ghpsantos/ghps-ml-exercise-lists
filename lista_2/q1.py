@@ -71,9 +71,9 @@ def lvq1(X_dataset, y_dataset, n_prototypes, learning_rate, epochs_quantity):
             index = neighs[0][0]
             #adjusting prototype
             if (selected_prototypes_y[index] == y_dataset[i]):
-                selected_prototypes_X[index] -= (learningRateByEpoch(learning_rate, epoch, epochs_quantity)*(x - selected_prototypes_X[index]))
-            else:
                 selected_prototypes_X[index] += (learningRateByEpoch(learning_rate, epoch, epochs_quantity)*(x - selected_prototypes_X[index]))
+            else:
+                selected_prototypes_X[index] -= (learningRateByEpoch(learning_rate, epoch, epochs_quantity)*(x - selected_prototypes_X[index]))
 
                 
 
@@ -91,36 +91,39 @@ def isInWindow(distance_1, distance_2, w):
 def lvq2 (X_dataset, y_dataset, n_prototypes, learning_rate, epochs_quantity, w):
     [P_X,p_y] = lvq1(X_dataset, y_dataset, n_prototypes, learning_rate, epochs_quantity)
     knn2Classifier.fit(P_X, p_y)
-    
+
     for epoch in range(epochs_quantity):
+        print(learningRateByEpoch(learning_rate, epoch, epochs_quantity))
         for i,x in enumerate(X_dataset):
             distances , neighs = knn2Classifier.kneighbors([x])
-            print(neighs)
+#            print(neighs)
             index_neigh_1 = neighs[0][0]
             index_neigh_2 = neighs[0][1]
             distance_1 = distances[0][0]
             distance_2 = distances[0][1]
             # if is in window
             if isInWindow(distance_1, distance_2, w):
-                # if there different classes
-                if (p_y[index_neigh_1] != p_y[index_neigh_2]):
-                
-#                    P_X[index] -= (learningRateByEpoch(learning_rate, epoch, epochs_quantity)*(x - selected_prototypes_X[index]))
-
+                    neigh_1_class = p_y[index_neigh_1]
+                    neigh_2_class = p_y[index_neigh_2]
+                    # if there different classes
+                    if (neigh_1_class  != neigh_2_class):
+                        #adjusting prototype
+                        if( neigh_1_class  == y_dataset[i] ):
+                            P_X[index_neigh_1] += (learningRateByEpoch(learning_rate, epoch, epochs_quantity)*(x - P_X[index_neigh_1]))
+                            P_X[index_neigh_2] -= (learningRateByEpoch(learning_rate, epoch, epochs_quantity)*(x - P_X[index_neigh_2]))
+    
+                        elif(neigh_2_class == y_dataset[i]):
+                             P_X[index_neigh_1] -= (learningRateByEpoch(learning_rate, epoch, epochs_quantity)*(x - P_X[index_neigh_1]))
+                             P_X[index_neigh_2] += (learningRateByEpoch(learning_rate, epoch, epochs_quantity)*(x - P_X[index_neigh_2]))
+                          
         
-
-        #caiu na janela?????
-        
-
-        print(index_neigh_1)
-        print(index_neigh_2)
-        os.system("pause")
-#    print(knn2Classifier.)
-    return []
+    return [P_X, p_y]
 
     
-[T_X, T_y] = lvq1(X_datatrieve, y_datatrieve, 8, 0.3, 20)
-lvq2(X_datatrieve, y_datatrieve, 8, 0.3, 20, 555555555555)
+[T_X_1, T_y_1] = lvq1(X_datatrieve, y_datatrieve, 8, 0.3, 20)
+[T_X_2, T_y_2] = lvq2(X_datatrieve, y_datatrieve, 8, 0.3, 20, 555555555555)
 
-#print(T_X)
-#print(T_y)
+print(T_X_1)
+print(T_y_1)
+print(T_X_2)
+print(T_y_2)
