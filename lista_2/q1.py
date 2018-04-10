@@ -52,13 +52,16 @@ def selectRandomProtypes(n_prototypes, X_dataset,y_dataset):
     random_prototypes_X = []
     random_prototypes_y = []
     classes = np.unique(y_dataset)
+    
     print(classes)
     for c in classes:
-        selected_indexes = random.sample(np.asarray(np.where(y_datatrieve==c)).tolist()[0],n_prototypes)
+        selected_indexes = random.sample(np.asarray(np.where(y_dataset==c)).tolist()[0],n_prototypes)
         for i in selected_indexes:
             random_prototypes_X.append(np.asarray(X_dataset[i]).tolist())
             random_prototypes_y.append(np.asarray(y_dataset[i]).tolist())
-    
+            
+#    print(random_prototypes_X)
+#    print(random_prototypes_y)
     return [np.array(random_prototypes_X), np.array(random_prototypes_y)] 
 
 #learning rate in function of time
@@ -68,7 +71,7 @@ def learningRateByEpoch(learning_rate, currentEpoch, totalEpochs):
 def lvq1(X_dataset, y_dataset, n_prototypes, learning_rate, epochs_quantity):
     [selected_prototypes_X, selected_prototypes_y] = selectRandomProtypes(n_prototypes, X_dataset, y_dataset) 
     knn1Classifier.fit(selected_prototypes_X,selected_prototypes_y)
-    
+
     for epoch in range(epochs_quantity):
         for i,x in enumerate(X_dataset):
             #get nearest neighbor
@@ -158,18 +161,23 @@ def lvq3 (X_dataset, y_dataset, n_prototypes, learning_rate, epochs_quantity, w,
 
     
 #[T_X_1, T_y_1] = lvq1(X_datatrieve, y_datatrieve, 8, 0.3, 20)
+[T_X_1, T_y_1] = lvq1(X_cm1, y_cm1, 8, 0.3, 20)
+
 #[T_X_2, T_y_2] = lvq21(X_datatrieve, y_datatrieve, 8, 0.3, 20, 0.01)
 #[T_X_3, T_y_3] = lvq3(X_kc2, y_kc2, 8, 0.3, 20, 0.01, 0.001)
 
-[T_X_3, T_y_3] = lvq3(X_cm1, y_cm1, 8, 0.3, 20, 0.01, 0.001)
+#[T_X_3, T_y_3] = lvq1(X_cm1, y_cm1, 8, 0.3, 20)
 
-#print(T_X_1)
-#print(T_y_1)
+print(T_X_1)
+print(T_y_1)
 #print(T_X_2)
 #print(T_y_2)
 #print(T_X_3)
 #print(T_y_3)
 
+
+knnClassifier33 = KNeighborsClassifier(n_neighbors=2)
+knnClassifier33.fit(T_X_1, T_y_1)
 
 #from sklearn.model_selection import StratifiedKFold
 #skf = StratifiedKFold(n_splits=3)
