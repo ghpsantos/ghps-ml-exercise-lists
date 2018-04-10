@@ -108,6 +108,7 @@ def lvq21 (X_dataset, y_dataset, n_prototypes, learning_rate, epochs_quantity, w
             index_neigh_2 = neighs[0][1]
             distance_1 = distances[0][0]
             distance_2 = distances[0][1]
+          
             # if is in window
             if isInWindow(distance_1, distance_2, w):
                     neigh_1_class = p_y[index_neigh_1]
@@ -161,30 +162,108 @@ def lvq3 (X_dataset, y_dataset, n_prototypes, learning_rate, epochs_quantity, w,
 
     
 #[T_X_1, T_y_1] = lvq1(X_datatrieve, y_datatrieve, 8, 0.3, 20)
-[T_X_1, T_y_1] = lvq1(X_cm1, y_cm1, 8, 0.3, 20)
+#[T_X_1, T_y_1] = lvq1(X_cm1, y_cm1, 8, 0.3, 20)
 
 #[T_X_2, T_y_2] = lvq21(X_datatrieve, y_datatrieve, 8, 0.3, 20, 0.01)
-#[T_X_3, T_y_3] = lvq3(X_kc2, y_kc2, 8, 0.3, 20, 0.01, 0.001)
+#[T_X_3, T_y_3] = lvq3(X_kc2, y_kc2, 8, 0.3, 20, 0.01, 0.1)
 
 #[T_X_3, T_y_3] = lvq1(X_cm1, y_cm1, 8, 0.3, 20)
 
-print(T_X_1)
-print(T_y_1)
+#print(T_X_1)
+#print(T_y_1)
 #print(T_X_2)
 #print(T_y_2)
 #print(T_X_3)
 #print(T_y_3)
 
 
-knnClassifier33 = KNeighborsClassifier(n_neighbors=2)
-knnClassifier33.fit(T_X_1, T_y_1)
+#knnClassifier33 = KNeighborsClassifier(n_neighbors=2)
+#knnClassifier33.fit(T_X_1, T_y_1)
 
 #from sklearn.model_selection import StratifiedKFold
-#skf = StratifiedKFold(n_splits=3)
-# 
+skf = StratifiedKFold(n_splits=5)
+
 #for train_index, test_index in skf.split(X_datatrieve, y_datatrieve):
+    
+    
 #    print(y_datatrieve[train_index])
 #    print(np.where( y_datatrieve == 1))
 #    print(len(y_datatrieve[train_index]))
 #    os.system("pause")
+
+knn1 = KNeighborsClassifier(n_neighbors=1)
+knn3 = KNeighborsClassifier(n_neighbors=3)
+n_epochs = 100
+lr = 0.4
+w = 0.3
+epsilon = 0.1 
+
+def precisionMedia(precision_matrix):
+    l = len(precision_matrix);
+    return np.array(precision_matrix).sum(axis=0)/l
+
+def runKNNsAndReturnAccuracies(X_train, y_train, X_test,y_test):
+    knn1.fit(X_train, y_train)
+    knn3.fit(X_train, y_train)
+    return [knn1.score(X_test, y_test), knn3.score(X_test, y_test)]
     
+def runLVQs(X, y, n_prototypes):
+   
+    knn1ScoresLVQ1 = []
+    knn1ScoresLVQ21 = []
+    knn1ScoresLVQ3 = []
+
+    knn3ScoresLVQ1 = []
+    knn3ScoresLVQ21 = []
+    knn3ScoresLVQ3 = []
+    
+    # sem utilizar algoritmo de seleção de protótipos
+    knn1Scores = []
+    knn3Scores = []
+    
+    i = 0
+    for train_indexes, test_indexes in skf.split(X,y):
+        #for numero de protótipos...
+#        print(knn1ScoresLVQ1)
+        #creating datasets
+        [T_X_1, T_y_1] = lvq1(X, y, n_prototypes, lr, n_epochs)
+        [T_X_2, T_y_2] = lvq21(X, y, n_prototypes, lr, n_epochs, w)
+        [T_X_3, T_y_3] = lvq3(X, y, n_prototypes,lr, n_epochs, w, epsilon)
+        
+        #running knns and build the accuracy matrix
+        lvq1Scores = runKNNsAndReturnAccuracies(T_X_1,T_y_1, X[test_indexes],y[test_indexes])
+        knn1ScoresLVQ1.append(lvq1Scores[0])
+        knn3ScoresLVQ1.append(lvq1Scores[1])
+        
+        lvq21Scores = runKNNsAndReturnAccuracies(T_X_2,T_y_2, X[test_indexes],y[test_indexes])
+        knn1ScoresLVQ21.append(lvq21Scores[0])
+        knn3ScoresLVQ21.append(lvq21Scores[1])
+        
+        lvq3Scores = runKNNsAndReturnAccuracies(T_X_3,T_y_3, X[test_indexes],y[test_indexes])
+        knn1ScoresLVQ3.append(lvq3Scores[0])
+        knn3ScoresLVQ3.append(lvq3Scores[1])
+        
+        trainScore = runKNNsAndReturnAccuracies(X[train_indexes],y[train_indexes], X[test_indexes],y[test_indexes])
+        knn1Scores.append(trainScore[0])
+        knn3Scores.append(trainScore[1])
+        
+        if i == 2:
+            break
+        
+        i = i + 1
+        os.system("pause")
+    
+    print(knn1ScoresLVQ1)
+    print(precisionMedia(knn1ScoresLVQ1))
+    
+    os.system("pause")
+#         frequency, weight = runKNNAndReturnAcurracies(X[train_indexes],y[train_indexes], X[test_indexes],y[test_indexes] )
+         
+#         allFrequencies.append(frequency)
+#         allWeight.append(weight)
+
+#    barPlot(K_values_list, precisionMedia(allFrequencies), 'KNN' +' - ' +database_name )
+#    barPlot(K_values_list, precisionMedia(allWeight), 'KNN com peso' + ' - ' +  database_name)
+
+
+runLVQs(X_cm1, y_cm1, 16)
