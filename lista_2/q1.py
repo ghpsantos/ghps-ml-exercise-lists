@@ -20,20 +20,21 @@ from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 
-datatrieve_data = pd.read_csv("dataset/datatrieve.csv",header=None)
+#datatrieve_data = pd.read_csv("dataset/datatrieve.csv",header=None)
 kc2_data = pd.read_csv("dataset/kc2.csv",header=None)
+X_kc2 = preprocessing.scale(kc2_data.iloc[:,:-1].values)
+y_kc2 = kc2_data.iloc[:,21].values
 
 cm1_data = pd.read_csv("dataset/cm1.csv", header=None)
 X_cm1 = preprocessing.scale(cm1_data.iloc[:,:-1].values)
 y_cm1 = cm1_data.iloc[:,21].values
 
 #datatrieve dataset X and y
-X_datatrieve = preprocessing.scale(datatrieve_data.iloc[:,:-1].values)
-y_datatrieve = datatrieve_data.iloc[:,8].values
+#X_datatrieve = preprocessing.scale(datatrieve_data.iloc[:,:-1].values)
+#y_datatrieve = datatrieve_data.iloc[:,8].values
 
 #kc2 dataset X and y
-X_kc2 = preprocessing.scale(kc2_data.iloc[:,:-1].values)
-y_kc2 = kc2_data.iloc[:,21].values
+
 
 #from sklearn.model_selection import train_test_split
 #X_train, X_test, y_train, y_test  = train_test_split(X_datatrieve,y_datatrieve, test_size = 0.2, random_state = 0)
@@ -53,7 +54,6 @@ def selectRandomProtypes(n_prototypes, X_dataset,y_dataset):
     random_prototypes_y = []
     classes = np.unique(y_dataset)
     
-    print(classes)
     for c in classes:
         selected_indexes = random.sample(np.asarray(np.where(y_dataset==c)).tolist()[0],n_prototypes)
         for i in selected_indexes:
@@ -221,8 +221,8 @@ def runLVQs(X, y, n_prototypes):
     knn1Scores = []
     knn3Scores = []
     
-    i = 0
     for train_indexes, test_indexes in skf.split(X,y):
+        print(n_prototypes)
         #for numero de protótipos...
 #        print(knn1ScoresLVQ1)
         #creating datasets
@@ -246,17 +246,22 @@ def runLVQs(X, y, n_prototypes):
         trainScore = runKNNsAndReturnAccuracies(X[train_indexes],y[train_indexes], X[test_indexes],y[test_indexes])
         knn1Scores.append(trainScore[0])
         knn3Scores.append(trainScore[1])
-        
-        if i == 2:
-            break
-        
-        i = i + 1
-        os.system("pause")
+      
+#        os.system("pause")
     
-    print(knn1ScoresLVQ1)
-    print(precisionMedia(knn1ScoresLVQ1))
+#    print(knn1ScoresLVQ1)
+#    print(precisionMedia(knn1ScoresLVQ1))
+#    print(precisionMedia(knn1Scores))
+#    os.system("pause")
     
-    os.system("pause")
+    return [precisionMedia(knn1ScoresLVQ1),
+            precisionMedia(knn1ScoresLVQ21),
+            precisionMedia(knn1ScoresLVQ3),
+            precisionMedia(knn1Scores),
+            precisionMedia(knn3ScoresLVQ1),
+            precisionMedia(knn3ScoresLVQ21),
+            precisionMedia(knn3ScoresLVQ3),
+            precisionMedia(knn3Scores)]
 #         frequency, weight = runKNNAndReturnAcurracies(X[train_indexes],y[train_indexes], X[test_indexes],y[test_indexes] )
          
 #         allFrequencies.append(frequency)
@@ -265,5 +270,34 @@ def runLVQs(X, y, n_prototypes):
 #    barPlot(K_values_list, precisionMedia(allFrequencies), 'KNN' +' - ' +database_name )
 #    barPlot(K_values_list, precisionMedia(allWeight), 'KNN com peso' + ' - ' +  database_name)
 
+def printInFormat(database_name, n_prototipes, precisions):
+    print(database_name)
+    print('--------------------------------------')
+    print('Número de Protótipos: ' + str(n_prototipes))
+    print('--------------------------------------')
+    print('KNN - 1')
+    print('LVQ1: ', str(precisions[0]))
+    print('LVQ21: ', str(precisions[1]))
+    print('LVQ3: ', str(precisions[2]))
+    print('TrainSet: ', str(precisions[3]))
 
-runLVQs(X_cm1, y_cm1, 16)
+    print('--------------------------------------')
+    
+    print('KNN - 3')
+    print('LVQ1: ', str(precisions[4]))
+    print('LVQ21: ', str(precisions[5]))
+    print('LVQ3: ', str(precisions[6]))
+    print('TrainSet: ', str(precisions[7]))
+
+    print('--------------------------------------')
+    
+#printInFormat(2, [12.2,2,3])
+
+prototype_values = [4,8,16,32]
+for p_v in prototype_values:
+    #running LVQs and printing the results
+    printInFormat('CM1 DATABASE' , p_v, runLVQs(X_cm1, y_cm1, p_v))  
+    printInFormat('KC2 DATABASE' , p_v, runLVQs(X_kc2, y_kc2, p_v))  
+    
+#printInFormat(8, runLVQs(X_cm1, y_cm1, 8))    
+#runLVQs(X_cm1, y_cm1, 8)
