@@ -198,9 +198,8 @@ lr = 0.4
 w = 0.3
 epsilon = 0.1 
 
-def precisionMedia(precision_matrix):
-    l = len(precision_matrix);
-    return np.array(precision_matrix).sum(axis=0)/l
+def precisionMediaAndStd(precision_matrix):
+    return [np.mean(np.array(precision_matrix)), np.std(np.array(precision_matrix))]
 
 def runKNNsAndReturnAccuracies(X_train, y_train, X_test,y_test):
     knn1.fit(X_train, y_train)
@@ -246,29 +245,16 @@ def runLVQs(X, y, n_prototypes):
         trainScore = runKNNsAndReturnAccuracies(X[train_indexes],y[train_indexes], X[test_indexes],y[test_indexes])
         knn1Scores.append(trainScore[0])
         knn3Scores.append(trainScore[1])
-      
-#        os.system("pause")
-    
-#    print(knn1ScoresLVQ1)
-#    print(precisionMedia(knn1ScoresLVQ1))
-#    print(precisionMedia(knn1Scores))
-#    os.system("pause")
-    
-    return [precisionMedia(knn1ScoresLVQ1),
-            precisionMedia(knn1ScoresLVQ21),
-            precisionMedia(knn1ScoresLVQ3),
-            precisionMedia(knn1Scores),
-            precisionMedia(knn3ScoresLVQ1),
-            precisionMedia(knn3ScoresLVQ21),
-            precisionMedia(knn3ScoresLVQ3),
-            precisionMedia(knn3Scores)]
-#         frequency, weight = runKNNAndReturnAcurracies(X[train_indexes],y[train_indexes], X[test_indexes],y[test_indexes] )
-         
-#         allFrequencies.append(frequency)
-#         allWeight.append(weight)
-
-#    barPlot(K_values_list, precisionMedia(allFrequencies), 'KNN' +' - ' +database_name )
-#    barPlot(K_values_list, precisionMedia(allWeight), 'KNN com peso' + ' - ' +  database_name)
+     
+        
+    return [precisionMediaAndStd(knn1ScoresLVQ1),
+            precisionMediaAndStd(knn1ScoresLVQ21),
+            precisionMediaAndStd(knn1ScoresLVQ3),
+            precisionMediaAndStd(knn1Scores),
+            precisionMediaAndStd(knn3ScoresLVQ1),
+            precisionMediaAndStd(knn3ScoresLVQ21),
+            precisionMediaAndStd(knn3ScoresLVQ3),
+            precisionMediaAndStd(knn3Scores)]
 
 def printInFormat(database_name, n_prototipes, precisions):
     print(database_name)
@@ -276,21 +262,22 @@ def printInFormat(database_name, n_prototipes, precisions):
     print('Número de Protótipos: ' + str(n_prototipes))
     print('--------------------------------------')
     print('KNN - 1')
-    print('LVQ1: ', str(precisions[0]))
-    print('LVQ21: ', str(precisions[1]))
-    print('LVQ3: ', str(precisions[2]))
-    print('TrainSet: ', str(precisions[3]))
+    
+    print('LVQ1: ', str(precisions[0][0]) , '±', str(precisions[0][1]), 'σ')
+    print('LVQ21: ', str(precisions[1][0]) , '±', str(precisions[1][1]), 'σ')
+    print('LVQ3: ', str(precisions[2][0]) , '±', str(precisions[2][1]), 'σ')
+    print('TrainSet: ', str(precisions[3][0]) , '±', str(precisions[3][1]), 'σ')
 
     print('--------------------------------------')
     
     print('KNN - 3')
-    print('LVQ1: ', str(precisions[4]))
-    print('LVQ21: ', str(precisions[5]))
-    print('LVQ3: ', str(precisions[6]))
-    print('TrainSet: ', str(precisions[7]))
+    print('LVQ1: ', str(precisions[4][0]) , '±', str(precisions[4][1]), 'σ')
+    print('LVQ21: ', str(precisions[5][0]) , '±', str(precisions[5][1]), 'σ')
+    print('LVQ3: ', str(precisions[6][0]) , '±', str(precisions[6][1]), 'σ')
+    print('TrainSet: ', str(precisions[7][0]) , '±', str(precisions[7][1]), 'σ')
 
     print('--------------------------------------')
-    
+
 #printInFormat(2, [12.2,2,3])
 
 prototype_values = [4,8,16,32]
