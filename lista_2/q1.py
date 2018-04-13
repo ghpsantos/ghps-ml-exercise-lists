@@ -20,7 +20,6 @@ from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 
-#datatrieve_data = pd.read_csv("dataset/datatrieve.csv",header=None)
 kc2_data = pd.read_csv("dataset/kc2.csv",header=None)
 X_kc2 = preprocessing.scale(kc2_data.iloc[:,:-1].values)
 y_kc2 = kc2_data.iloc[:,21].values
@@ -29,21 +28,8 @@ cm1_data = pd.read_csv("dataset/cm1.csv", header=None)
 X_cm1 = preprocessing.scale(cm1_data.iloc[:,:-1].values)
 y_cm1 = cm1_data.iloc[:,21].values
 
-#datatrieve dataset X and y
-#X_datatrieve = preprocessing.scale(datatrieve_data.iloc[:,:-1].values)
-#y_datatrieve = datatrieve_data.iloc[:,8].values
-
-#kc2 dataset X and y
-
-
-#from sklearn.model_selection import train_test_split
-#X_train, X_test, y_train, y_test  = train_test_split(X_datatrieve,y_datatrieve, test_size = 0.2, random_state = 0)
 
 knn1Classifier = KNeighborsClassifier(n_neighbors=1)
-#neigh.fit(X_train, y_train)
-
-#print(neigh.kneighbors([X_test[3]],n_neighbors=5))
-#skf = StratifiedKFold(n_splits=5)
 
 def euclidianDistance(v1, v2):
     return math.sqrt(sum(pow((v1 - v2),2)))
@@ -60,8 +46,6 @@ def selectRandomProtypes(n_prototypes, X_dataset,y_dataset):
             random_prototypes_X.append(np.asarray(X_dataset[i]).tolist())
             random_prototypes_y.append(np.asarray(y_dataset[i]).tolist())
             
-#    print(random_prototypes_X)
-#    print(random_prototypes_y)
     return [np.array(random_prototypes_X), np.array(random_prototypes_y)] 
 
 #learning rate in function of time
@@ -160,36 +144,9 @@ def lvq3 (X_dataset, y_dataset, n_prototypes, learning_rate, epochs_quantity, w,
         
     return [P_X, p_y]
 
-    
-#[T_X_1, T_y_1] = lvq1(X_datatrieve, y_datatrieve, 8, 0.3, 20)
-#[T_X_1, T_y_1] = lvq1(X_cm1, y_cm1, 8, 0.3, 20)
-
-#[T_X_2, T_y_2] = lvq21(X_datatrieve, y_datatrieve, 8, 0.3, 20, 0.01)
-#[T_X_3, T_y_3] = lvq3(X_kc2, y_kc2, 8, 0.3, 20, 0.01, 0.1)
-
-#[T_X_3, T_y_3] = lvq1(X_cm1, y_cm1, 8, 0.3, 20)
-
-#print(T_X_1)
-#print(T_y_1)
-#print(T_X_2)
-#print(T_y_2)
-#print(T_X_3)
-#print(T_y_3)
-
-
-#knnClassifier33 = KNeighborsClassifier(n_neighbors=2)
-#knnClassifier33.fit(T_X_1, T_y_1)
-
-#from sklearn.model_selection import StratifiedKFold
 skf = StratifiedKFold(n_splits=5)
 
-#for train_index, test_index in skf.split(X_datatrieve, y_datatrieve):
-    
-    
-#    print(y_datatrieve[train_index])
-#    print(np.where( y_datatrieve == 1))
-#    print(len(y_datatrieve[train_index]))
-#    os.system("pause")
+
 
 knn1 = KNeighborsClassifier(n_neighbors=1)
 knn3 = KNeighborsClassifier(n_neighbors=3)
@@ -223,7 +180,6 @@ def runLVQs(X, y, n_prototypes):
     for train_indexes, test_indexes in skf.split(X,y):
         print(n_prototypes)
         #for numero de protótipos...
-#        print(knn1ScoresLVQ1)
         #creating datasets
         [T_X_1, T_y_1] = lvq1(X, y, n_prototypes, lr, n_epochs)
         [T_X_2, T_y_2] = lvq21(X, y, n_prototypes, lr, n_epochs, w)
@@ -278,7 +234,6 @@ def printInFormat(database_name, n_prototipes, precisions):
 
     print('--------------------------------------')
 
-#printInFormat(2, [12.2,2,3])
 
 prototype_values = [4,8,16,32]
 for p_v in prototype_values:
@@ -286,5 +241,3 @@ for p_v in prototype_values:
     printInFormat('CM1 DATABASE' , p_v, runLVQs(X_cm1, y_cm1, p_v))  
     printInFormat('KC2 DATABASE' , p_v, runLVQs(X_kc2, y_kc2, p_v))  
     
-#printInFormat(8, runLVQs(X_cm1, y_cm1, 8))    
-#runLVQs(X_cm1, y_cm1, 8)
