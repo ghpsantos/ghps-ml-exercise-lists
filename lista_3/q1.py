@@ -21,10 +21,25 @@ y_cm1 = cm1_data.iloc[:,21].values
 
 
 iris_data = pd.read_csv("dataset/iris.csv", header=None)
-X_iris = iris_data.iloc[:,:-1].values
+X_iris = preprocessing.scale(iris_data.iloc[:,:-1].values)
 y_iris = iris_data.iloc[:,4].values
 
 
+
+def sortEigenComponents(eig_vals, eig_vecs):
+    eig_map = []
+
+    for i, eig_val in enumerate(eig_vals):
+#        print(i)
+#        print(eig_val)
+        eig_map.append((eig_val,eig_vecs[i].tolist()))
+        
+        
+#    print(eig_vals)
+#    print(eig_vecs)
+    eig_map = sorted(eig_map, key=lambda my_tuple: my_tuple[0], reverse=True)
+    return eig_map
+    
 def LDA(X,y):
     classes = np.unique(y).tolist()
     Sw = 0
@@ -33,7 +48,6 @@ def LDA(X,y):
     overall_mean_dataset = np.mean(X, axis=0)
 
     for c in classes:
-#        len(np.where(y == c)[0])
         indexes = np.where(y == c)[0]
         
         #número de padrões da classe l
@@ -57,42 +71,42 @@ def LDA(X,y):
 
     eig_vals, eig_vecs = np.linalg.eig(np.dot(np.linalg.inv(Sw),Sb))
     
-    eig_map = []
+    eig_map = sortEigenComponents(eig_vals,eig_vecs)
     
-    for i, eig_val in enumerate(eig_vals):
-        print(i)
-        print(eig_val)
-        eig_map.append((eig_val,eig_vecs[i].tolist()))
-        
-        
-#    print(eig_vals)
-#    print(eig_vecs)
-    eig_map = sorted(eig_map, key=lambda my_tuple: my_tuple[0], reverse=True)
+    return eig_map  
     
-    return eig_map
-#    print(eig_map)
-#    os.system("pause")
-
-#    print(total_size)
-#    print(len(y_kc2))    
-    
-#LDA(X_kc2, y_kc2)
+LDA(X_kc2, y_kc2)
 #LDA(X_iris, y_iris)
 #LDA(X_cm1, y_cm1)
 
 
 
+def buildProjectionMatrix(eig_map, n_components):
+    projection_matrix = []
+
+    for i in range(n_components):
+        print(np.transpose([eig_map[i][1]]))
+        projection_matrix.append(np.transpose([eig_map[i][1]]))
+    
+    #join arrays by column
+    return np.hstack(projection_matrix)
+
 ########## PCA
 
 def PCA(X):
-#    print(X[0])
-    cov_matrix = np.cov(X)
-#    print(cov_matrix)
+    #calculate the covariance matrix
+    cov_matrix = np.cov(X.T)
+    # calculate eigenvalues and vectors
     eig_vals, eig_vecs = np.linalg.eig(cov_matrix)
+
+    #sort eigens
+    eig_map = sortEigenComponents(eig_vals,eig_vecs)
     
-    print(eig_vecs[0].shape)
-    return []
+    return eig_map
 
-PCA(X_iris)
+components = PCA(X_iris)
+#components = PCA(X_cm1)
+projectionMatrix = buildProjectionMatrix(components, 3)
 
 
+X_iris_projected = np.matmul(X_iris,projectionMatrix)

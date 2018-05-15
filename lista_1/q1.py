@@ -42,7 +42,6 @@ def getNeighbors(instance, dataset):
         neighbours.append((i, euclidianDistance(instance, dataset[i,:])))
         
     neighbours = np.array(neighbours, dtype=[('index',int),('distance',float)])   
-    
 
     return np.sort(neighbours, order='distance')
 
