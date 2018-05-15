@@ -20,24 +20,52 @@ X_cm1 = preprocessing.scale(cm1_data.iloc[:,:-1].values)
 y_cm1 = cm1_data.iloc[:,21].values
 
 
-a = np.array([[1,2,3],[4,5,6],[7,8,9]])
-a.mean(axis=1)
+iris_data = pd.read_csv("dataset/iris.csv", header=None)
+X_iris = iris_data.iloc[:,:-1].values
+y_iris = iris_data.iloc[:,4].values
 
 
-classes = np.unique(y_kc2).tolist()
+def LDA(X,y):
+    classes = np.unique(y).tolist()
+    Sw = 0
+    Sb = 0
+
+    overall_mean_dataset = np.mean(X, axis=0)
+
+    for c in classes:
+#        len(np.where(y == c)[0])
+        indexes = np.where(y == c)[0]
+        
+        #número de padrões da classe l
+        nl = len(indexes)
+        #class instances
+        classSamples = X[indexes]
+        #overall mean classs
+        overall_mean_class = np.mean(classSamples, axis=0)
+        
+#        print(overall_mean_class)
+        #Sb calculation
+        mean_diff = overall_mean_class - overall_mean_dataset
+        Sb = Sb + nl*(np.matmul(np.transpose([mean_diff]), np.array([mean_diff])))
+        
+        #Sw calculation
+        for i in range(nl):
+            mean_diff = classSamples[i,:] - overall_mean_class
+            
+            Sw = Sw + np.matmul(np.transpose([mean_diff]), np.array([mean_diff]));
 
 
-Sw = 0
-Sb = 0
+    eig_vals, eig_vecs = np.linalg.eig(np.dot(np.linalg.inv(Sw),Sb))
+    print(eig_vals)
+    print(eig_vecs)
+  
+#    os.system("pause")
 
-total_size = 0
-
-for c in classes:
-   
-    print(len(np.where(y_kc2 == c)[0]))
-    print(c)
+#    print(total_size)
+#    print(len(y_kc2))    
     
+LDA(X_kc2, y_kc2)
+LDA(X_iris, y_iris)
+LDA(X_cm1, y_cm1)
 
-print(total_size)
-print(len(y_kc2))    
-os.system("pause")
+# diff'* diff ( pois os exemplos estão nas linhas)
