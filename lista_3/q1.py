@@ -56,16 +56,43 @@ def LDA(X,y):
 
 
     eig_vals, eig_vecs = np.linalg.eig(np.dot(np.linalg.inv(Sw),Sb))
-    print(eig_vals)
-    print(eig_vecs)
-  
+    
+    eig_map = []
+    
+    for i, eig_val in enumerate(eig_vals):
+        print(i)
+        print(eig_val)
+        eig_map.append((eig_val,eig_vecs[i].tolist()))
+        
+        
+#    print(eig_vals)
+#    print(eig_vecs)
+    eig_map = sorted(eig_map, key=lambda my_tuple: my_tuple[0], reverse=True)
+    
+    return eig_map
+#    print(eig_map)
 #    os.system("pause")
 
 #    print(total_size)
 #    print(len(y_kc2))    
     
-LDA(X_kc2, y_kc2)
-LDA(X_iris, y_iris)
-LDA(X_cm1, y_cm1)
+#LDA(X_kc2, y_kc2)
+#LDA(X_iris, y_iris)
+#LDA(X_cm1, y_cm1)
 
-# diff'* diff ( pois os exemplos estão nas linhas)
+
+
+########## PCA
+
+def PCA(X):
+#    print(X[0])
+    cov_matrix = np.cov(X)
+#    print(cov_matrix)
+    eig_vals, eig_vecs = np.linalg.eig(cov_matrix)
+    
+    print(eig_vecs[0].shape)
+    return []
+
+PCA(X_iris)
+
+
