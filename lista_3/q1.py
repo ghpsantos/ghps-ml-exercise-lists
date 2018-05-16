@@ -116,15 +116,59 @@ print(len(components_lda))
 projectionMatrix = buildProjectionMatrix(components, 3)
 
 #X_iris_projected = np.matmul(X_iris,projectionMatrix)
+
+
+#experiment and plot
 import seaborn as sns
 import pandas as pd
-mockedDataset = [[1,0.5],[2,0.6],[3,0.7],[3,0.8],[4,0.9],[5,0.556], [6,0.5],[7,0.6],[8,0.7],[9,0.8],[10,0.9],[11,0.556]]
-df = pd.DataFrame(mockedDataset, columns=['components','precision'])
-print(df)
-sns.set_style("whitegrid")
-#tips = sns.load_dataset("tips")
-#print(tips.head())
-#ax = sns.barplot(x="day", y="total_bill", data=tips)
-g = sns.barplot(x="components", y="precision", data=df)
-g.set_ylim(0, 1)
 
+def barPlot(data):
+    df = pd.DataFrame(data, columns=['components','precision'])
+    sns.set_style("whitegrid")
+    g = sns.barplot(x="components", y="precision", data=df)
+    g.set_ylim(0, 1)
+
+
+from sklearn.model_selection import StratifiedKFold
+skf = StratifiedKFold(n_splits=5)
+
+from sklearn.neighbors import KNeighborsClassifier
+knn3 = KNeighborsClassifier(n_neighbors=3)
+
+def runStratifiedKFoldAndPlotResult(X,y):
+    n_attributes = len(X[0])
+    for train_indexes, test_indexes in skf.split(X,y):
+        #getting components from train set
+        components_pca = PCA(X[train_indexes])
+        components_lda = LDA(X[train_indexes],y[train_indexes])
+        #for each quantity of attribute
+        for c_v in range(1,n_attributes+1):
+            projectionMatrix_pca = buildProjectionMatrix(components_pca, c_v)
+            projectionMatrix_lda = buildProjectionMatrix(components_lda, c_v)
+            
+            X_projeced_pca = np.matmul(X_iris,projectionMatrix_pca)
+            X_projeced_lda = np.matmul(X_iris,projectionMatrix_lda)
+            
+            #fazer aqui uma função para pegar a matrix de projeção e o X, treinar e pegar o score. depois colocar em um array e tirar a média
+            
+#        print(len(X[train_indexes][0]))
+            os.system("pause")
+        
+        
+runStratifiedKFoldAndPlotResult(X_iris,y_iris)
+    
+
+#mockedDataset = [[1,0.5],[2,0.6],[3,0.7],[3,0.8],[4,0.9],[5,0.556], [6,0.5],[7,0.6],[8,0.7],[9,0.8],[10,0.9],[11,0.556]]
+#df = pd.DataFrame(mockedDataset, columns=['components','precision'])
+#print(df)
+#
+#
+# 
+#     
+##plot
+#sns.set_style("whitegrid")
+##tips = sns.load_dataset("tips")
+##print(tips.head())
+##ax = sns.barplot(x="day", y="total_bill", data=tips)
+#g = sns.barplot(x="components", y="precision", data=df)
+#g.set_ylim(0, 1)
