@@ -24,6 +24,10 @@ iris_data = pd.read_csv("dataset/iris.csv", header=None)
 X_iris = preprocessing.scale(iris_data.iloc[:,:-1].values)
 y_iris = iris_data.iloc[:,4].values
 
+#
+#datatrieve_data = pd.read_csv("dataset/datatrieve.csv",header=None)
+#X_datatrieve = preprocessing.scale(datatrieve_data.iloc[:,:-1].values)
+#y_datatrieve = datatrieve_data.iloc[:,8].values
 
 
 def sortEigenComponents(eig_vals, eig_vecs):
@@ -104,9 +108,23 @@ def PCA(X):
     
     return eig_map
 
-components = PCA(X_iris)
-#components = PCA(X_cm1)
+#components = PCA(X_iris)
+components = PCA(X_cm1)
+components_lda = LDA(X_cm1,y_cm1)
+print(len(components))
+print(len(components_lda))
 projectionMatrix = buildProjectionMatrix(components, 3)
 
+#X_iris_projected = np.matmul(X_iris,projectionMatrix)
+import seaborn as sns
+import pandas as pd
+mockedDataset = [[1,0.5],[2,0.6],[3,0.7],[3,0.8],[4,0.9],[5,0.556], [6,0.5],[7,0.6],[8,0.7],[9,0.8],[10,0.9],[11,0.556]]
+df = pd.DataFrame(mockedDataset, columns=['components','precision'])
+print(df)
+sns.set_style("whitegrid")
+#tips = sns.load_dataset("tips")
+#print(tips.head())
+#ax = sns.barplot(x="day", y="total_bill", data=tips)
+g = sns.barplot(x="components", y="precision", data=df)
+g.set_ylim(0, 1)
 
-X_iris_projected = np.matmul(X_iris,projectionMatrix)
