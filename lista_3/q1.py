@@ -206,6 +206,7 @@ def runStratifiedKFoldAndPlotResult(X,y):
 
 l = range(1,12)
 print(l)
+
 #mockedDataset = [[1,0.5],[2,0.6],[3,0.7],[3,0.8],[4,0.9],[5,0.556], [6,0.5],[7,0.6],[8,0.7],[9,0.8],[10,0.9],[11,0.556]]
 #barPlot(mockedDataset)
 
