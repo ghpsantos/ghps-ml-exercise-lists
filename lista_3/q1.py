@@ -127,12 +127,18 @@ def PCA(X):
 #experiment and plot
 import seaborn as sns
 import pandas as pd
+import matplotlib.pyplot as plt
 
-def barPlot(data):
+def barPlot(data, plot_title):
+    
     df = pd.DataFrame(data, columns=['components','precision'])
     sns.set_style("whitegrid")
     g = sns.barplot(x="components", y="precision", data=df)
+    g.set_title(plot_title)
     g.set_ylim(0, 1)
+    plt.show()
+    plt.clf()
+
 
 
 from sklearn.model_selection import StratifiedKFold
@@ -147,34 +153,41 @@ def runKnnAndGetScores(X_train, y_train, X_test, y_test):
     knn3.fit(X_train, y_train)
     #accuracies
     score = knn3.score(X_test, y_test)
-    print('oi, matrix de precisão' )
-    print(score)
 #    os.system("pause")
-    return []
+    return score
 
-def runStratifiedKFoldAndPlotResult(X,y):
+def buildPDFrame(mean_array, max_range):
+    
+    pd_format = []
+    for i in range(1,max_range+1):
+        pd_format.append([i,mean_array[i-1]])
+        
+    df = pd.DataFrame(pd_format, columns=['components','precision'])
+    return df
+
+def runStratifiedKFoldAndGetPlotData(X,y):
     n_attributes = len(X[0])
-    print(n_attributes)
+
+    precision_matrix_pca = []
+    precision_matrix_lda = []
+
+
     for train_indexes, test_indexes in skf.split(X,y):
         #getting components from train set
         components_pca = PCA(X[train_indexes])
         components_lda = LDA(X[train_indexes],y[train_indexes])
-        print('\n\n\n\n\n')
-        print('queeeee')
-        print(components_pca)
-        print(components_lda)
-#        os.system("pause")
-#        #for each quantity of attribute
-#        
+       
+        iteration_precision_line_pca = []
+        iteration_precision_line_lda = []
+
+        #for each quantity of attribute
+
         for c_v in range(1,n_attributes+1):
             print(c_v)
             projectionMatrix_pca = buildProjectionMatrix(components_pca, c_v)
             projectionMatrix_lda = buildProjectionMatrix(components_lda, c_v)
             
-            print(projectionMatrix_lda)
-            print(projectionMatrix_pca)
-
-            
+      
 #            os.system("pause")
             
             projected_X_train_pca  = np.matmul(X[train_indexes],projectionMatrix_pca)
@@ -187,26 +200,46 @@ def runStratifiedKFoldAndPlotResult(X,y):
 #            X_projeced_pca = np.matmul(X_iris,projectionMatrix_pca)
 #            X_projeced_lda = np.matmul(X_iris,projectionMatrix_lda)
             
-            print('PCA')
-            runKnnAndGetScores(projected_X_train_pca, y[train_indexes], projected_X_test_pca, y[test_indexes])
-            print('LDA')
-            runKnnAndGetScores(projected_X_train_lda, y[train_indexes], projected_X_test_lda, y[test_indexes])
-
-            os.system("pause")
+            score_pca = runKnnAndGetScores(projected_X_train_pca, y[train_indexes], projected_X_test_pca, y[test_indexes])
+            score_lda = runKnnAndGetScores(projected_X_train_lda, y[train_indexes], projected_X_test_lda, y[test_indexes])
+            
+            iteration_precision_line_pca.append(score_pca)
+            iteration_precision_line_lda.append(score_lda)
+            
 #            
             #fazer aqui uma função para pegar a matrix de projeção e o X, treinar e pegar o score. depois colocar em um array e tirar a média
-            
+        
+        precision_matrix_pca.append(iteration_precision_line_pca)
+        precision_matrix_lda.append(iteration_precision_line_lda)
+
+    print('PCA')
+    
+#    print(np.array(precision_matrix_pca))
+    print(np.mean(np.array(precision_matrix_pca),axis=0))
+
+    print('LDA')
+    print(np.mean(np.array(precision_matrix_lda),axis=0))
+    buildPDFrame(np.mean(np.array(precision_matrix_pca),axis=0),n_attributes)
+    buildPDFrame(np.mean(np.array(precision_matrix_lda),axis=0),n_attributes)
+
 #        print(len(X[train_indexes][0]))
-            
+    
+    return[buildPDFrame(np.mean(np.array(precision_matrix_pca),axis=0),n_attributes), buildPDFrame(np.mean(np.array(precision_matrix_lda),axis=0),n_attributes)]
         
-        
-#runStratifiedKFoldAndPlotResult(X_iris,y_iris)
-#runStratifiedKFoldAndPlotResult(X_kc2,y_kc2)
-#runStratifiedKFoldAndPlotResult(X_datatrieve,y_datatrieve)
 
-l = range(1,12)
-print(l)
+def runExperimentAndPlot(X,y, dataset_name):
+    pd_frame_pca, pd_frame_lda = runStratifiedKFoldAndGetPlotData(X,y)
+    barPlot(pd_frame_pca, dataset_name + ' PCA')
+    barPlot(pd_frame_lda, dataset_name + ' LDA')
 
+
+#runExperimentAndPlot(X_iris,y_iris, 'IRIS')
+runExperimentAndPlot(X_kc2,y_kc2, 'KC2')
+#runExperimentAndPlot(X_datatrieve,y_datatrieve)
+
+#l = range(1,12)
+#print(list(l))
+#print('oi')
 #mockedDataset = [[1,0.5],[2,0.6],[3,0.7],[3,0.8],[4,0.9],[5,0.556], [6,0.5],[7,0.6],[8,0.7],[9,0.8],[10,0.9],[11,0.556]]
 #barPlot(mockedDataset)
 
