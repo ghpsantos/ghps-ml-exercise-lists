@@ -55,7 +55,6 @@ def LDA(X,y):
         #overall mean classs
         overall_mean_class = np.mean(classSamples, axis=0)
         
-#        print(overall_mean_class)
         #Sb calculation
         mean_diff = overall_mean_class - overall_mean_dataset
         Sb = Sb + nl*(np.matmul(np.transpose([mean_diff]), np.array([mean_diff])))
@@ -91,8 +90,15 @@ import matplotlib.pyplot as plt
 def barPlot(data, plot_title):
     
     df = pd.DataFrame(data, columns=['components','precision'])
+    print(df)
+    #colors
+    norm = plt.Normalize(df['precision'].values.min(), df['precision'].values.max())
+    colors = plt.cm.Reds(norm(df['precision']))
+    ##
     sns.set_style("whitegrid")
-    g = sns.barplot(x="components", y="precision", data=df)
+    plt.figure(figsize=(8,5))
+    
+    g = sns.barplot(x="components", y="precision", data=df, palette=colors)
     g.set_title(plot_title)
     g.set_ylim(0, 1)
     plt.show()
@@ -100,18 +106,19 @@ def barPlot(data, plot_title):
 
 
 
+
 from sklearn.model_selection import StratifiedKFold
 skf = StratifiedKFold(n_splits=5)
 
 from sklearn.neighbors import KNeighborsClassifier
-knn3 = KNeighborsClassifier(n_neighbors=3)
+knn = KNeighborsClassifier(n_neighbors=5)
 
 
 def runKnnAndGetScores(X_train, y_train, X_test, y_test):
     #train
-    knn3.fit(X_train, y_train)
+    knn.fit(X_train, y_train)
     #accuracies
-    score = knn3.score(X_test, y_test)
+    score = knn.score(X_test, y_test)
 
     return score
 
@@ -141,7 +148,6 @@ def runStratifiedKFoldAndGetFrame(X,y):
         #for each quantity of attribute
 
         for c_v in range(1,n_classes):
-            print('oi')
             projectionMatrix_lda = buildProjectionMatrix(components_lda, c_v)
                   
             projected_X_train_lda =  np.matmul(X[train_indexes],projectionMatrix_lda)
@@ -172,7 +178,7 @@ def runExperimentAndPlot(X,y, dataset_name):
     
 
 #runExperimentAndPlot(X_iris,y_iris, 'IRIS')
-#runExperimentAndPlot(X_cm1,y_cm1, 'CM1')
-#runExperimentAndPlot(X_datatrieve,y_datatrieve,'DATATRIEVE')
+runExperimentAndPlot(X_cm1,y_cm1, 'CM1')
+runExperimentAndPlot(X_datatrieve,y_datatrieve,'DATATRIEVE')
 
      

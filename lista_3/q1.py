@@ -67,9 +67,14 @@ import matplotlib.pyplot as plt
 def barPlot(data, plot_title):
     
     df = pd.DataFrame(data, columns=['components','precision'])
+    #colors
+    norm = plt.Normalize(df['precision'].values.min(), df['precision'].values.max())
+    colors = plt.cm.Reds(norm(df['precision']))
+    ##
     sns.set_style("whitegrid")
     plt.figure(figsize=(8,5))
-    g = sns.barplot(x="components", y="precision", data=df)
+    
+    g = sns.barplot(x="components", y="precision", data=df, palette=colors)
     g.set_title(plot_title)
     g.set_ylim(0, 1)
     plt.show()
@@ -81,14 +86,14 @@ from sklearn.model_selection import StratifiedKFold
 skf = StratifiedKFold(n_splits=5)
 
 from sklearn.neighbors import KNeighborsClassifier
-knn3 = KNeighborsClassifier(n_neighbors=3)
+knn = KNeighborsClassifier(n_neighbors=5)
 
 
 def runKnnAndGetScores(X_train, y_train, X_test, y_test):
     #train
-    knn3.fit(X_train, y_train)
+    knn.fit(X_train, y_train)
     #accuracies
-    score = knn3.score(X_test, y_test)
+    score = knn.score(X_test, y_test)
 #    os.system("pause")
     return score
 
@@ -151,4 +156,4 @@ def runExperimentAndPlot(X,y, dataset_name):
 
 #runExperimentAndPlot(X_iris,y_iris, 'IRIS')
 runExperimentAndPlot(X_cm1,y_cm1, 'CM1')
-#runExperimentAndPlot(X_datatrieve,y_datatrieve,'DATATRIEVE')
+runExperimentAndPlot(X_datatrieve,y_datatrieve,'DATATRIEVE')
