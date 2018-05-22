@@ -17,10 +17,6 @@ X_cm1 = preprocessing.scale(cm1_data.iloc[:,:-1].values)
 y_cm1 = cm1_data.iloc[:,21].values
 
 
-iris_data = pd.read_csv("dataset/iris.csv", header=None)
-X_iris = preprocessing.scale(iris_data.iloc[:,:-1].values)
-y_iris = iris_data.iloc[:,4].values
-
 #datatrieve dataset X and y
 datatrieve_data = pd.read_csv("dataset/datatrieve.csv",header=None)
 X_datatrieve = preprocessing.scale(datatrieve_data.iloc[:,:-1].values)
@@ -90,7 +86,7 @@ import matplotlib.pyplot as plt
 def barPlot(data, plot_title):
     
     df = pd.DataFrame(data, columns=['components','precision'])
-    print(df)
+#    print(df)
     #colors
     norm = plt.Normalize(df['precision'].values.min(), df['precision'].values.max())
     colors = plt.cm.Reds(norm(df['precision']))
@@ -173,11 +169,9 @@ def runStratifiedKFoldAndGetFrame(X,y):
 
 def runExperimentAndPlot(X,y, dataset_name):
     pd_frame_pca = runStratifiedKFoldAndGetFrame(X,y)
-#    os.system("pause")
     barPlot(pd_frame_pca, dataset_name + ' LDA')
     
 
-#runExperimentAndPlot(X_iris,y_iris, 'IRIS')
 runExperimentAndPlot(X_cm1,y_cm1, 'CM1')
 runExperimentAndPlot(X_datatrieve,y_datatrieve,'DATATRIEVE')
 
